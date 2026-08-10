@@ -1,5 +1,6 @@
 using System;
-using System.Web;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Web.UI;
 
 namespace MY_PROJECT
@@ -8,23 +9,6 @@ namespace MY_PROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                // 1. Check if user is already logged in via Session
-                if (Session["Username"] != null)
-                {
-                    Response.Redirect("Dashboard.aspx");
-                    return;
-                }
-
-                // 2. Check if Cookie exists to auto-fill username or auto-login
-                HttpCookie userCookie = Request.Cookies["UserLoginCookie"];
-                if (userCookie != null && !string.IsNullOrEmpty(userCookie["Username"]))
-                {
-                    txtUsername.Text = userCookie["Username"];
-                    ShowInfo("Cookie found! Found saved login details for user: " + userCookie["Username"]);
-                }
-            }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -38,59 +22,39 @@ namespace MY_PROJECT
                 return;
             }
 
-            // Validate against SQL Server Database
-            UserModel user = DbHelper.ValidateUser(usernameOrEmail, password);
-
-            if (user == null)
+            try
             {
-                ShowError("Invalid Username/Email or Password! (Try default admin / 123 or register a new user)");
-                return;
-            }
+                string s = ConfigurationManager.ConnectionStrings["dbcon"].ConnectionString;
+                SqlConnection con = new SqlConnection(s);
+                con.Open();
 
-            // --- 1. SET BACKEND SESSION VALUES ---
-            Session["Username"] = user.Username;
-            Session["FullName"] = user.FullName;
-            Session["Email"] = user.Email;
-            Session["Gender"] = user.Gender;
-            Session["LoggedInAt"] = DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt");
+                string sql = "SELECT COUNT(*) FROM Users WHERE (Username = @Input OR Email = @Input) AND Password = @Password";
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@Input", usernameOrEmail);
+                cmd.Parameters.AddWithValue("@Password", password);
 
-            // --- 2. SET OR REMOVE HTTP COOKIE VALUES ---
-            if (chkRememberMe.Checked)
-            {
-                HttpCookie cookie = new HttpCookie("UserLoginCookie");
-                cookie["Username"] = user.Username;
-                cookie["FullName"] = user.FullName;
-                cookie["Email"] = user.Email;
-                cookie["Gender"] = user.Gender;
-                cookie.Expires = DateTime.Now.AddDays(7); // Persists for 7 days
-                Response.Cookies.Add(cookie);
-            }
-            else
-            {
-                // Expire cookie if user unchecked "Remember Me"
-                if (Request.Cookies["UserLoginCookie"] != null)
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                con.Close();
+
+                if (count > 0)
                 {
-                    HttpCookie cookie = new HttpCookie("UserLoginCookie");
-                    cookie.Expires = DateTime.Now.AddDays(-1);
-                    Response.Cookies.Add(cookie);
+                    Response.Redirect("Dashboard.aspx");
+                }
+                else
+                {
+                    ShowError("Invalid Username/Email or Password!");
                 }
             }
-
-            // Redirect to Dashboard page
-            Response.Redirect("Dashboard.aspx");
+            catch (Exception ex)
+            {
+                ShowError("Database Error: " + ex.Message);
+            }
         }
 
         private void ShowError(string message)
         {
             lblMessage.Text = message;
             lblMessage.CssClass = "alert-custom alert-danger-custom d-block";
-            lblMessage.Visible = true;
-        }
-
-        private void ShowInfo(string message)
-        {
-            lblMessage.Text = message;
-            lblMessage.CssClass = "alert-custom alert-info-custom d-block";
             lblMessage.Visible = true;
         }
     }

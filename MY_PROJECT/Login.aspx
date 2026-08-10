@@ -110,7 +110,7 @@
         <div class="auth-container">
             <div class="auth-header">
                 <h2>User Login</h2>
-                <p>Sign in using Session & Cookie Authentication</p>
+                <p>Sign in to your account</p>
             </div>
 
             <asp:Label ID="lblMessage" runat="server" Visible="false"></asp:Label>
@@ -125,10 +125,7 @@
                 <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control-custom" placeholder="Enter password"></asp:TextBox>
             </div>
 
-            <div class="checkbox-container">
-                <asp:CheckBox ID="chkRememberMe" runat="server" Checked="true" />
-                <label for="<%= chkRememberMe.ClientID %>" style="margin-bottom:0; cursor:pointer;">Remember Me (Save in HTTP Cookie)</label>
-            </div>
+
 
             <asp:Button ID="btnLogin" runat="server" Text="Sign In" CssClass="btn-submit" OnClick="btnLogin_Click" />
 

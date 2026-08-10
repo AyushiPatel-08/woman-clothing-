@@ -1,128 +1,82 @@
-//using System;
-//using System.Web;
-//using System.Web.UI;
-
 using System;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
-using System.Web;
 using System.Web.UI;
 
 namespace MY_PROJECT
 {
     public partial class Register : System.Web.UI.Page
     {
+        SqlConnection con;
+        SqlDataAdapter da;
+        DataSet ds;
+        SqlCommand cmd;
+        string fnm;
+
+        string s = ConfigurationManager.ConnectionStrings["dbcon"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // If user is already logged in via Session or Cookie, redirect to Dashboard
-                if (Session["Username"] != null || Request.Cookies["UserLoginCookie"] != null)
-                {
-                    Response.Redirect("Dashboard.aspx");
-                }
+                fillgrid();
             }
         }
 
-        protected void btnRegister_Click(object sender, EventArgs e)
+        void getcon()
         {
-            string fullName = txtFullName.Text.Trim();
-            string username = txtUsername.Text.Trim();
-            string email = txtEmail.Text.Trim();
-            string gender = ddlGender.SelectedValue;
-            string password = txtPassword.Text;
-            string confirmPassword = txtConfirmPassword.Text;
+            con = new SqlConnection(s);
+            con.Open();
+        }
 
-            // Input Validation
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(username) ||
-                string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        void imgupload()
+        {
+            fnm = "images/" + FileUpload1.FileName;
+            FileUpload1.SaveAs(Server.MapPath(fnm));
+        }
+
+        void clear()
+        {
+            txtnm.Text = "";
+            rdbgen.SelectedIndex = -1;
+            txteml.Text = "";
+            ddpct.SelectedIndex = -1;
+            txtadd.Text = "";
+            txtmbl.Text = "";
+        }
+
+        void fillgrid()
+        {
+            getcon();
+            da = new SqlDataAdapter("Select * from emp_tbl", con);
+            ds = new DataSet();
+            da.Fill(ds);
+            GridView1.DataSource = ds;
+            GridView1.DataBind();
+            con.Close();
+        }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            if (Button1.Text == "Save")
             {
-                ShowError("All required fields must be filled!");
-                return;
-            }
-
-            if (password != confirmPassword)
-            {
-                ShowError("Passwords do not match! Please check and try again.");
-                return;
-            }
-
-            // Create User Object
-            UserModel newUser = new UserModel
-            {
-                FullName = fullName,
-                Username = username,
-                Email = email,
-                Gender = gender,
-                Password = password,
-                RegisteredAt = DateTime.Now
-            };
-
-            // Save to SQL Database Server
-            try
-            {
-                string s = ConfigurationManager
-                    .ConnectionStrings["con"]
-                    .ConnectionString;
-
-                SqlConnection con = new SqlConnection(s);
-                con.Open();
-
-                string checkQuery = "SELECT COUNT(*) FROM Users WHERE Username = @Username";
-
-                SqlCommand checkCmd = new SqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@Username", username);
-
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
-                {
-                    ShowError("Username already exists!");
-                    con.Close();
-                    return;
-                }
-
-                string query = @"INSERT INTO Users
-                    (FullName, Username, Email, Gender, Password)
-                    VALUES
-                    (@FullName, @Username, @Email, @Gender, @Password)";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-
-                cmd.Parameters.AddWithValue("@FullName", fullName);
-                cmd.Parameters.AddWithValue("@Username", username);
-                cmd.Parameters.AddWithValue("@Email", email);
-                cmd.Parameters.AddWithValue("@Gender", gender);
-                cmd.Parameters.AddWithValue("@Password", password);
-
+                getcon();
+                imgupload();
+                cmd = new SqlCommand("insert into emp_tbl (Name, Gender, Email, City, Address, Mobile, Image) values (@1, @2, @3, @4, @5, @6, @7)", con);
+                cmd.Parameters.AddWithValue("@1", txtnm.Text);
+                cmd.Parameters.AddWithValue("@2", rdbgen.SelectedValue);
+                cmd.Parameters.AddWithValue("@3", txteml.Text);
+                cmd.Parameters.AddWithValue("@4", ddpct.SelectedValue);
+                cmd.Parameters.AddWithValue("@5", txtadd.Text);
+                cmd.Parameters.AddWithValue("@6", txtmbl.Text);
+                cmd.Parameters.AddWithValue("@7", fnm);
                 cmd.ExecuteNonQuery();
-
+                clear();
+                fillgrid();
                 con.Close();
+                ShowSuccess("Record saved successfully!");
             }
-            catch (Exception ex)
-            {
-                ShowError("Database Error: " + ex.Message);
-                return;
-            }
-
-            // --- 1. SET BACKEND SESSION VALUES ---
-            Session["Username"] = newUser.Username;
-            Session["FullName"] = newUser.FullName;
-            Session["Email"] = newUser.Email;
-            Session["Gender"] = newUser.Gender;
-            Session["LoggedInAt"] = DateTime.Now.ToString("dd-MMM-yyyy hh:mm:ss tt");
-
-            // --- 2. SET HTTP COOKIE VALUES ---
-            HttpCookie userCookie = new HttpCookie("UserLoginCookie");
-            userCookie["Username"] = newUser.Username;
-            userCookie["FullName"] = newUser.FullName;
-            userCookie["Email"] = newUser.Email;
-            userCookie["Gender"] = newUser.Gender;
-            userCookie.Expires = DateTime.Now.AddDays(7); // Cookie persists for 7 days
-            Response.Cookies.Add(userCookie);
-
-            // Redirect to User Dashboard
-            Response.Redirect("Dashboard.aspx");
         }
 
         private void ShowError(string message)
