@@ -7,6 +7,11 @@ namespace MY_PROJECT
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["admin"] != null)
+            {
+                lblHeaderUserName.Text = Session["admin"].ToString();
+            }
         }
+
     }
 }
