@@ -1,61 +1,57 @@
 using System;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Web;
 using System.Web.UI;
+using System.Web.UI.WebControls;
+
 
 namespace MY_PROJECT
 {
     public partial class Login : System.Web.UI.Page
     {
+
+        SqlConnection con;
+        SqlDataAdapter da;
+        DataSet ds;
+        SqlCommand cmd;
         protected void Page_Load(object sender, EventArgs e)
         {
+
+            if (Session["admin"] != null)
+            {
+                Response.Redirect("//");
+            }
         }
 
+        void getcon()
+        {
+            string s = ConfigurationManager.ConnectionStrings["dbcon"].ConnectionString;
+            con = new SqlConnection(s);
+            con.Open();
+        }
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            string usernameOrEmail = txtUsername.Text.Trim();
-            string password = txtPassword.Text;
-
-            if (string.IsNullOrEmpty(usernameOrEmail) || string.IsNullOrEmpty(password))
+            if (!(string.IsNullOrEmpty(txtUsername.Text)) && !(string.IsNullOrEmpty(txtPassword.Text)))
+                getcon();
             {
-                ShowError("Please enter both username/email and password.");
-                return;
-            }
+                cmd = new SqlCommand("select count(*) from [User] where UserName= '" + txtUsername.Text + "' and password='" + txtPassword.Text + "'", con);
+                //cmd.ExecuteNonQuery();
+                int i = Convert.ToInt32(cmd.ExecuteScalar());
 
-            try
-            {
-                string s = ConfigurationManager.ConnectionStrings["dbcon"].ConnectionString;
-                SqlConnection con = new SqlConnection(s);
-                con.Open();
 
-                string sql = "SELECT COUNT(*) FROM Users WHERE (Username = @Input OR Email = @Input) AND Password = @Password";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@Input", usernameOrEmail);
-                cmd.Parameters.AddWithValue("@Password", password);
-
-                int count = Convert.ToInt32(cmd.ExecuteScalar());
-                con.Close();
-
-                if (count > 0)
+                if (i > 0)
                 {
-                    Response.Redirect("Dashboard.aspx");
+                    Session["admin"] = txtUsername.Text;
+                    Response.Redirect("index.aspx");
                 }
                 else
                 {
-                    ShowError("Invalid Username/Email or Password!");
+                    Response.Write("Invalid Email or Password");
                 }
             }
-            catch (Exception ex)
-            {
-                ShowError("Database Error: " + ex.Message);
-            }
-        }
 
-        private void ShowError(string message)
-        {
-            lblMessage.Text = message;
-            lblMessage.CssClass = "alert-custom alert-danger-custom d-block";
-            lblMessage.Visible = true;
         }
     }
 }
