@@ -67,6 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ADMIN\A_Dashboard.aspx" />
+    <Content Include="ADMIN\A_Login.aspx" />
     <Content Include="blog-details.html" />
     <Content Include="blog.html" />
     <Content Include="checkout.html" />
@@ -173,14 +175,17 @@
     <Content Include="js\mixitup.min.js" />
     <Content Include="js\owl.carousel.min.js" />
     <Content Include="main.html" />
+    <Content Include="new_img\Allegro red icon.jpg" />
+    <Content Include="new_img\button.png" />
     <Content Include="product-details.html" />
     <Content Include="readme.txt" />
     <Content Include="shop-cart.html" />
     <Content Include="shop.html" />
+    <Content Include="Show_Company.aspx" />
+    <Content Include="Show_Product.aspx" />
     <Content Include="Web.config" />
     <Content Include="WebForm1.aspx" />
     <Content Include="Register.aspx" />
-    <Content Include="Login.aspx" />
     <Content Include="Dashboard.aspx" />
     <Content Include="index.aspx" />
     <Content Include="shop.aspx" />
@@ -193,7 +198,35 @@
     <Content Include="main.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ADMIN\A_Dashboard.aspx.cs">
+      <DependentUpon>A_Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ADMIN\A_Dashboard.aspx.designer.cs">
+      <DependentUpon>A_Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ADMIN\A_Login.aspx.cs">
+      <DependentUpon>A_Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ADMIN\A_Login.aspx.designer.cs">
+      <DependentUpon>A_Login.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Show_Company.aspx.cs">
+      <DependentUpon>Show_Company.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Show_Company.aspx.designer.cs">
+      <DependentUpon>Show_Company.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Show_Product.aspx.cs">
+      <DependentUpon>Show_Product.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Show_Product.aspx.designer.cs">
+      <DependentUpon>Show_Product.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Site1.Master.cs">
       <DependentUpon>Site1.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -214,13 +247,6 @@
     </Compile>
     <Compile Include="Register.aspx.designer.cs">
       <DependentUpon>Register.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Login.aspx.cs">
-      <DependentUpon>Login.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Login.aspx.designer.cs">
-      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Dashboard.aspx.cs">
       <DependentUpon>Dashboard.aspx</DependentUpon>
@@ -285,12 +311,26 @@
     <Compile Include="contact.aspx.designer.cs">
       <DependentUpon>contact.aspx</DependentUpon>
     </Compile>
-    <Compile Include="main.aspx.cs">
-      <DependentUpon>main.aspx</DependentUpon>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="main.aspx.designer.cs">
-      <DependentUpon>main.aspx</DependentUpon>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="addcompany.aspx.cs">
+      <DependentUpon>addcompany.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="addcompany.aspx.designer.cs">
+      <DependentUpon>addcompany.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="addproduct.aspx.cs">
+      <DependentUpon>addproduct.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="addproduct.aspx.designer.cs">
+      <DependentUpon>addproduct.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -305,6 +345,9 @@
     <Content Include="fonts\FontAwesome.otf" />
     <None Include="packages.config" />
     <Content Include="Site1.Master" />
+    <Content Include="Login.aspx" />
+    <Content Include="addcompany.aspx" />
+    <Content Include="addproduct.aspx" />
     <Content Include="sass\style.scss" />
     <Content Include="sass\_base.scss" />
     <Content Include="sass\_blog-details.scss" />
@@ -337,6 +380,10 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="comp_img\" />
+    <Folder Include="prod_img\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
